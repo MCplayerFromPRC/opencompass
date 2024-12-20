@@ -115,8 +115,13 @@ def get_config_from_arg(args) -> Config:
                 config['eval']['partitioner']['judge_models'] = change_accelerator(config['eval']['partitioner']['judge_models'], args.accelerator)
             if config.get('judge_models') is not None:
                 config['judge_models'] = change_accelerator(config['judge_models'], args.accelerator)
-        if args.num_workers > 0 and config.get('infer', {}).get('partitioner', {}).get('num_worker') is not None:
-            config['infer']['partitioner']['num_worker'] = args.num_workers
+        if args.num_workers > 0 and 'infer' in config:
+            partitioner_cfg = config.get('infer').get('partitioner', None)
+            num_worker_type = 'opencompass.partitioners.NumWorkerPartitioner'
+            if partitioner_cfg is not None and partitioner_cfg.get('type', num_worker_type) == num_worker_type:
+                config['infer']['partitioner']['num_worker'] = args.num_workers
+            else:
+                config['infer']['partitioner'] = dict(type=num_worker_type, num_worker=args.num_workers)
         if args.max_num_workers > 0 and config.get('infer', {}).get('runner', {}).get('max_num_workers') is not None:
             config['infer']['runner']['max_num_workers'] = args.num_workers
         if args.local_eval is True:

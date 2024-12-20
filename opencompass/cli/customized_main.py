@@ -164,18 +164,18 @@ def parse_customized_args(customized_parser):
             super().__init__(option_strings, dest, nargs, **kwargs)
 
         def __call__(self, parser, namespace, values, option_string=None):
-            if namespace == 'benchmark':
+            if option_string == '--benchmark':
                 parsed_data = self.parse_benchmark(values)
-            elif 'pair' in namespace:
+            elif option_string == '--model_path_pair':
                 parsed_data = self.parse_pair(values)
             else:
                 parsed_data = values
             setattr(namespace, self.dest, parsed_data)
 
         def parse_pair(self, values):
-            module = importlib.import_module('template.configs_models.internal_models')
+            module = Config.fromfile('template/configs_models/internal_models.py')
             parsed_data = []
-            for value in values:
+            for value in values.split(' '):
                 try:
                     if ',' in value:
                         model, path = value.split(',', 1)
@@ -187,12 +187,12 @@ def parse_customized_args(customized_parser):
                         model_config = getattr(module, value)
                     parsed_data.append(model_config)
                 except Exception:
-                    raise argparse.ArgumentTypeError(f"Invalid model path format: '{value}', expected 'model,path'.")
+                    raise argparse.ArgumentTypeError(f"Invalid model path format: '{values}', expected 'model,path'.")
             return parsed_data
 
         def parse_benchmark(self, values):
             try:
-                module = importlib.import_module(values)
+                module = Config.fromfile(values)
                 parsed_data = {
                     'datasets': getattr(module, 'datasets'),
                     'summarizer': getattr(module, 'summarizer'),
