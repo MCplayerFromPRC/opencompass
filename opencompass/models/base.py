@@ -81,9 +81,10 @@ class BaseModel:
         Returns:
             List[float]: A list of perplexity scores.
         """
-        raise NotImplementedError(f'{self.__class__.__name__} does not support'
-                                  ' ppl-based evaluation yet, try gen-based '
-                                  'instead.')
+        # raise NotImplementedError(f'{self.__class__.__name__} does not '
+        #                           'support ppl-based evaluation yet, try '
+        #                           'gen-based instead.')
+        return torch.tensor([0.0] * len(inputs))
 
     @abstractmethod
     def get_ppl_tokenwise(

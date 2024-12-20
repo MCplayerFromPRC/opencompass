@@ -76,13 +76,20 @@ class korbenchDataset(BaseDataset):
 
                 # Add processed item
                 data.append({
-                    'rule_content': rule['rule_content'],
-                    'question': sample['question'],
-                    'answer': sample['answer'],
-                    'prompt': prompt,
-                    'rule_id': rule['idx'],
-                    'prompt_mode': '0_shot',
-                    'category': category,
+                    'rule_content':
+                    rule['rule_content'],
+                    'question':
+                    sample['question'],
+                    'answer':
+                    sample['answer'].replace('[[', '').replace(']]', ''),
+                    'prompt':
+                    prompt,
+                    'rule_id':
+                    rule['idx'],
+                    'prompt_mode':
+                    '0_shot',
+                    'category':
+                    category,
                 })
 
             return Dataset.from_list(data)
@@ -186,7 +193,7 @@ class korbenchEvaluator(BaseEvaluator):
         for i in range(len(predictions)):
             entry = {
                 'prediction': predictions[i],
-                'gold': references[i],
+                'gold': references[i].replace('[[', '').replace(']]', ''),
                 'rule_id': test_set[i].get('rule_id', None),
                 'category': test_set[i].get('category', None),
                 'rule_list': test_set[i].get('rule_list', None),

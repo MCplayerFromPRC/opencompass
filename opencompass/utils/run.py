@@ -95,9 +95,15 @@ def get_config_from_arg(args) -> Config:
 
     if args.config:
         config = Config.fromfile(args.config, format_python_code=False)
-        config = try_fill_in_custom_cfgs(config)
+        if args.benchmark is None:
+            config = try_fill_in_custom_cfgs(config)
+        else:
+            config['datasets'] = args.benchmark['datasets']
+            config['summarizer'] = args.benchmark['summarizer']
         # set infer accelerator if needed
-        if args.accelerator in ['vllm', 'lmdeploy']:
+        if args.model_path_pair is not None:
+            config['models'] = args.model_path_pair
+        elif args.accelerator in ['vllm', 'lmdeploy']:
             config['models'] = change_accelerator(config['models'], args.accelerator)
             if config.get('eval', {}).get('partitioner', {}).get('models') is not None:
                 config['eval']['partitioner']['models'] = change_accelerator(config['eval']['partitioner']['models'], args.accelerator)
@@ -109,6 +115,21 @@ def get_config_from_arg(args) -> Config:
                 config['eval']['partitioner']['judge_models'] = change_accelerator(config['eval']['partitioner']['judge_models'], args.accelerator)
             if config.get('judge_models') is not None:
                 config['judge_models'] = change_accelerator(config['judge_models'], args.accelerator)
+        if args.num_workers > 0 and config.get('infer', {}).get('partitioner', {}).get('num_worker') is not None:
+            config['infer']['partitioner']['num_worker'] = args.num_workers
+        if args.max_num_workers > 0 and config.get('infer', {}).get('runner', {}).get('max_num_workers') is not None:
+            config['infer']['runner']['max_num_workers'] = args.num_workers
+        if args.local_eval is True:
+            config['eval'].pop('aliyun_cfg', None)
+            config['eval'].pop('volcano_cfg', None)
+            config['type'] = LocalRunner
+        if config.get('infer', {}).get('partitioner', {}).get('aliyun_cfg') is not None:
+            if args.workspace:
+                config['infer']['runner']['aliyun_cfg']['workspace_id'] = args.workspace
+            if args.priority > 0:
+                config['infer']['runner']['aliyun_cfg']['priority'] = args.priority
+        if args.work_dir:
+            config['work_dir'] = args.work_dir
         return config
 
     # parse dataset args
