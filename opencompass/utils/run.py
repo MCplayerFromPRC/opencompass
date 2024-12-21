@@ -124,15 +124,20 @@ def get_config_from_arg(args) -> Config:
                 config['infer']['partitioner'] = dict(type=num_worker_type, num_worker=args.num_workers)
         if args.max_num_workers > 0 and config.get('infer', {}).get('runner', {}).get('max_num_workers') is not None:
             config['infer']['runner']['max_num_workers'] = args.num_workers
-        if args.local_eval is True:
-            config['eval'].pop('aliyun_cfg', None)
-            config['eval'].pop('volcano_cfg', None)
-            config['type'] = 'opencompass.runners.LocalRunner'
-        if config.get('infer', {}).get('partitioner', {}).get('aliyun_cfg') is not None:
+        if config.get('infer', {}).get('runner', {}).get('aliyun_cfg') is not None:
             if args.workspace:
                 config['infer']['runner']['aliyun_cfg']['workspace_id'] = args.workspace
             if args.priority > 0:
                 config['infer']['runner']['aliyun_cfg']['priority'] = args.priority
+        if config.get('eval', {}).get('runner', {}).get('aliyun_cfg') is not None:
+            if args.workspace:
+                config['eval']['runner']['aliyun_cfg']['workspace_id'] = args.workspace
+            if args.priority > 0:
+                config['eval']['runner']['aliyun_cfg']['priority'] = args.priority
+        if args.local_eval is True:
+            config['eval']['runner'].pop('aliyun_cfg', None)
+            config['eval']['runner'].pop('volcano_cfg', None)
+            config['eval']['runner']['type'] = 'opencompass.runners.LocalRunner'
         if args.work_dir:
             config['work_dir'] = args.work_dir
         return config
