@@ -204,7 +204,7 @@ def parse_customized_args(customized_parser):
     customized_parser.add_argument('--model_path_pair', help='inject path to model', default=None, action=ModelDatasetsParser)
     customized_parser.add_argument('--benchmark', help='benchmark config file', default=None, action=ModelDatasetsParser)
     customized_parser.add_argument('--workspace', help='cluster workspace id', type=str, default=None)
-    customized_parser.add_argument('--priority', help='cluster task priority', type=int, default=None)
+    customized_parser.add_argument('--priority', help='cluster task priority', type=int, default=0)
     customized_parser.add_argument('--num_workers', help='task num workers', type=int, default=0)
     customized_parser.add_argument('--local_eval', help='evaluate on the local machine', action='store_true', default=False)
 
