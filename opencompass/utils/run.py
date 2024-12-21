@@ -127,7 +127,7 @@ def get_config_from_arg(args) -> Config:
         if args.local_eval is True:
             config['eval'].pop('aliyun_cfg', None)
             config['eval'].pop('volcano_cfg', None)
-            config['type'] = LocalRunner
+            config['type'] = 'opencompass.runners.LocalRunner'
         if config.get('infer', {}).get('partitioner', {}).get('aliyun_cfg') is not None:
             if args.workspace:
                 config['infer']['runner']['aliyun_cfg']['workspace_id'] = args.workspace
